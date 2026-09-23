@@ -265,7 +265,7 @@ const APP = {
     $("passageBox").innerHTML=q.p?`<div>${q.p}</div>`:"";
     $("graphicBox").innerHTML=q.g?`<div class="graphic">${q.g}</div>`:"";
     $("questionBox").innerHTML=q.q;
-    $("#refBtn").classList.toggle("hidden", q.sec!=="math");
+    $("refBtn").classList.toggle("hidden", q.sec!=="math");
     $("referenceBox").classList.add("hidden");
 
     const ob=$("optionsBox");
@@ -305,6 +305,7 @@ const APP = {
     $("qCount").textContent=`Question ${SESS.idx+1} of ${SESS.qs.length}` + (SESS.marks.has(SESS.idx)?" ◆":"");
   },
   timeout(){ SESS.submitted=true; clearInterval(SESS._int); this.resolve(null,true); },
+  toggleRef(){ $("referenceBox").classList.toggle("hidden"); },
   submit(){
     if(SESS.submitted) return;
     const q=SESS.qs[SESS.idx];

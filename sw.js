@@ -1,4 +1,4 @@
-const CACHE = "psatcmd-v3";
+const CACHE = "psatcmd-v4";
 const ASSETS = [
   "./",
   "./index.html",
