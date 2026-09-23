@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PSAT COMMAND — Optimized for Anish, Oct 6</title>
+<meta name="theme-color" content="#0f141b">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/favicon.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PSAT CMD">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">PSAT<span>COMMAND</span></div>
+  <div class="topbar-right">
+    <div class="pill xp-pill" id="xpPill">⚡ 0 XP</div>
+    <div class="pill lvl-pill" id="lvlPill">LV 1</div>
+    <div class="pill streak-pill" id="streakPill">🔥 0</div>
+  </div>
+</header>
+
+<div id="countdownBanner">Loading countdown…</div>
+
+<main>
+  <!-- ============ DASHBOARD ============ -->
+  <section id="screen-dashboard" class="screen">
+    <div class="grid-2">
+      <div class="card">
+        <h2>📅 Today's Mission</h2>
+        <div id="dayHeader"></div>
+        <div id="questList" class="quests"></div>
+      </div>
+      <div class="card">
+        <h2>🧿 Skill Command Zones</h2>
+        <p class="dim">Live accuracy (last 20 attempts)</p>
+        <div id="skillBars" class="skillbars"></div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h2>🎯 NMSQT Ohio Goal</h2>
+        <p class="dim">Ohio National Merit Semifinalist cutline ≈ <b>221</b> Selection Index (48–228 scale). Feed it your Bluebook section scores.</p>
+        <div class="btnrow" style="align-items:flex-end">
+          <label class="numlbl">R&amp;W<input type="number" id="rwScore" min="320" max="760" step="10" placeholder="e.g. 730" oninput="APP.siChange()"></label>
+          <label class="numlbl">Math<input type="number" id="mathScore" min="320" max="760" step="10" placeholder="e.g. 750" oninput="APP.siChange()"></label>
+        </div>
+        <div class="siout" id="siOut">Estimated Selection Index: —</div>
+        <div class="dim" id="siGap"></div>
+        <p class="dim">Every +10 points on R&amp;W ≈ +2 SI. Every +10 on Math ≈ +1 SI.</p>
+      </div>
+      <div class="card">
+        <h2>⚔️ Training (Question Bank)</h2>
+        <div class="btnrow">
+          <button class="btn" onclick="APP.practice('custom','rw')">Reading & Writing</button>
+          <button class="btn" onclick="APP.practice('custom','math')">Math</button>
+          <button class="btn btn-ghost" onclick="APP.practice('custom','mixed')">Mixed Sprint</button>
+        </div>
+        <p class="dim" id="customSkillHint">Any-day open practice, SAT-format.</p>
+      </div>
+      <div class="card">
+        <h2>🏅 Campaign Log</h2>
+        <div id="logList" class="loglist"></div>
+      </div>
+      <div class="card">
+        <h2>📱 Study Anywhere (Phone)</h2>
+        <p class="dim">Same Wi-Fi as your Mac? Open this on your phone:</p>
+        <div class="phonelink" id="phoneInfo">—</div>
+        <button class="btn btn-ghost" onclick="APP.installHint()">🏠 Install as App (Android/iOS)</button>
+        <p class="dim" style="margin-top:10px">Sync XP & quests between phone and laptop:</p>
+        <textarea id="syncCode" rows="3" placeholder="Paste a backup code here to restore…"></textarea>
+        <div class="btnrow">
+          <button class="btn" onclick="APP.exportSync()">📤 Export Backup Code</button>
+          <button class="btn" onclick="APP.importSync()">📥 Restore from Code</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LESSON ============ -->
+  <section id="screen-lesson" class="screen hidden">
+    <div class="card lesson-card">
+      <button class="btn btn-back" onclick="APP.go('dashboard')">← Dashboard</button>
+      <h2 id="lessonTitle"></h2>
+      <div id="lessonBody" class="lesson-body"></div>
+      <div class="btnrow">
+        <button class="btn" id="lessonDoneBtn" onclick="APP.completeLesson()">✅ Mark Lesson Learned (+50 XP)</button>
+        <button class="btn btn-primary" id="lessonTipsBtn" onclick="APP.go('tips')">⚡ Speed Tips →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TIPS ============ -->
+  <section id="screen-tips" class="screen hidden">
+    <div class="card lesson-card">
+      <button class="btn btn-back" onclick="APP.go('lesson')">← Lesson</button>
+      <h2>⚡ Speed & Technique Playbook</h2>
+      <div id="tipsList" class="tips"></div>
+      <div class="btnrow">
+        <button class="btn btn-primary" onclick="APP.startPracticeFromDay()">🎯 Go Practice (SAT Format) →</button>
+      </div>
+      <p class="dim">Timer rules: R&W 71s/Question · Math 95s/Question. Same as the real test.</p>
+    </div>
+  </section>
+
+  <!-- ============ PRACTICE ============ -->
+  <section id="screen-practice" class="screen hidden">
+    <div class="satbar">
+      <div class="satbar-left" id="satModeLabel">Reading and Writing</div>
+      <div class="satbar-center">
+        <span id="qCount">Question 1 of 10</span>
+        <div class="timerpill" id="timerPill">01:11</div>
+      </div>
+      <div class="satbar-right">
+        <button class="satbtn" id="markBtn" onclick="APP.toggleMark()">Mark for Review</button>
+      </div>
+    </div>
+    <div class="progress-outer"><div class="progress-inner" id="qProgress"></div></div>
+
+    <div id="practiceBody" class="sat-body">
+      <!-- left passage pane -->
+      <div class="sat-left" id="satLeft">
+        <div class="passage" id="passageBox"></div>
+        <div class="graphic" id="graphicBox"></div>
+        <button class="satbtn ref-btn" id="refBtn" onclick="APP.toggleRef()">Reference</button>
+        <div class="reference hidden" id="referenceBox">
+          <b>Formulas</b><br>
+          Area ∎: l·w · A=πr² · C=2πr<br>
+          Triangle: ½·b·h · a²+b²=c²<br>
+          sin=O/H cos=A/H tan=O/A<br>
+          V prism=l·w·h · V cyl=πr²h<br>
+          Arc=(θ/360)·2πr · dist=rate·time
+        </div>
+      </div>
+      <!-- right question pane -->
+      <div class="sat-right" id="satRight">
+        <div class="question-top">
+          <span id="qSkillTag" class="tag"></span>
+          <span class="dim" id="qTypeTag"></span>
+        </div>
+        <div class="question" id="questionBox"></div>
+        <div class="options" id="optionsBox"></div>
+        <div class="btnrow">
+          <button class="btn btn-primary" id="submitBtn" onclick="APP.submit()">Submit</button>
+          <button class="btn hidden" id="nextBtn" onclick="APP.next()">Next →</button>
+        </div>
+        <div id="feedback" class="hidden feedback"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RESULTS ============ -->
+  <section id="screen-results" class="screen hidden">
+    <div id="confetti" class="confetti hidden"></div>
+    <div class="card results-card">
+      <h2 id="resultsTitle">Session Complete</h2>
+      <div class="scorebox">
+        <div class="bigscore" id="bigScore">—</div>
+        <div class="score-break" id="scoreBreak"></div>
+        <div class="xp-gained" id="xpGained">+0 XP</div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>📊 Detailed Breakdown</h3>
+          <div id="breakdownList"></div>
+        </div>
+        <div class="card">
+          <h3>⏱ Pace</h3>
+          <div id="paceList"></div>
+          <h3>🗂 Error Attribution</h3>
+          <div id="attributionList"></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>📤 Give this to your Coach (copy & paste)</h3>
+        <textarea id="coachReport" rows="8" readonly></textarea>
+        <div class="btnrow">
+          <button class="btn" onclick="APP.copyReport()">📋 Copy Report</button>
+          <button class="btn btn-primary" onclick="APP.go('dashboard')">🏠 Dashboard</button>
+        </div>
+        <p class="dim" id="reportHint"></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="js/questions.js"></script>
+<script src="js/content.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
