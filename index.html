@@ -23,11 +23,16 @@
   </div>
 </header>
 
+<div id="fatalError" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#8b1e1e;color:#fff;padding:10px 14px;font-size:13px;line-height:1.4"></div>
+
 <div id="countdownBanner">Loading countdown…</div>
 
 <main>
   <!-- ============ DASHBOARD ============ -->
   <section id="screen-dashboard" class="screen">
+    <div class="navrow">
+      <button class="btn btn-primary" onclick="APP.openLibrary()">📚 Topic Library — videos & guides</button>
+    </div>
     <div class="grid-2">
       <div class="card">
         <h2>📅 Today's Mission</h2>
@@ -78,6 +83,22 @@
         </div>
       </div>
     </div>
+  </section>
+
+  <!-- ============ LIBRARY ============ -->
+  <section id="screen-library" class="screen hidden">
+    <div class="card">
+      <button class="btn btn-back" onclick="APP.go('dashboard')">← Dashboard</button>
+      <h2>📚 Topic Library</h2>
+      <p class="dim">Condensed playbook + curated videos &amp; official sources for every PSAT skill. Tap a skill to expand.</p>
+      <div id="libOfficials"></div>
+      <div class="btnrow" id="libFilter">
+        <button class="btn" onclick="APP.libFilter('rw')">📖 R&amp;W</button>
+        <button class="btn" onclick="APP.libFilter('math')">🔢 Math</button>
+        <button class="btn btn-ghost" onclick="APP.libFilter('all')">All</button>
+      </div>
+    </div>
+    <div id="libList"></div>
   </section>
 
   <!-- ============ LESSON ============ -->
@@ -187,8 +208,9 @@
   </section>
 </main>
 
-<script src="js/questions.js"></script>
-<script src="js/content.js"></script>
-<script src="js/app.js"></script>
+<script src="js/questions.js?v=5"></script>
+<script src="js/content.js?v=5"></script>
+<script src="js/library.js?v=5"></script>
+<script src="js/app.js?v=5"></script>
 </body>
 </html>

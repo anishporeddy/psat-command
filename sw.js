@@ -1,12 +1,13 @@
-const CACHE = "psatcmd-v4";
+const CACHE = "psatcmd-v5";
 const ASSETS = [
   "./",
   "./index.html",
   "./styles.css",
   "./manifest.json",
-  "./js/questions.js",
-  "./js/content.js",
-  "./js/app.js",
+  "./js/questions.js?v=5",
+  "./js/content.js?v=5",
+  "./js/library.js?v=5",
+  "./js/app.js?v=5",
   "./icons/icon-192.png",
   "./icons/icon-512.png"
 ];

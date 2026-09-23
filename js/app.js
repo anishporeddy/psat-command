@@ -31,6 +31,13 @@ let S = newState();
 try{ S = Object.assign(S, JSON.parse(localStorage.getItem(STORE_KEY)||"{}")); }catch(e){}
 function save(){ localStorage.setItem(STORE_KEY, JSON.stringify(S)); }
 
+window.addEventListener("error", function(e){
+  try{
+    const d=document.getElementById("fatalError");
+    if(d){ d.style.display="block"; d.textContent="⚠ App issue: "+(e&&e.message||String(e))+ (e&&e.filename?" at "+e.filename+" "+(e.lineno||"") :"")+" — screenshot this."; }
+  }catch(_){}
+});
+
 const $ = id => document.getElementById(id);
 const show = id => { document.querySelectorAll(".screen").forEach(s=>s.classList.add("hidden")); $(id).classList.remove("hidden"); window.scrollTo(0,0); };
 
@@ -70,7 +77,42 @@ function zoneAll(skills){
 SESS = null;
 
 const APP = {
-  go(scr){ if(scr==="dashboard") this.renderDash(); if(scr==="lesson") this.renderLesson(); if(scr==="tips") this.renderTips(); show(`screen-${scr}`); },
+  go(scr){ if(scr==="dashboard") this.renderDash(); if(scr==="lesson") this.renderLesson(); if(scr==="tips") this.renderTips(); if(scr==="library") this.renderLibrary(); show(`screen-${scr}`); },
+
+  // ================= LIBRARY =================
+  _libSec:"all",
+  openLibrary(){ this.go("library"); },
+  libFilter(sec){
+    this._libSec=sec;
+    document.querySelectorAll("#libFilter .btn").forEach(b=>b.classList.remove("btn-primary"));
+    const btn=sec==="all" ? document.querySelector("#libFilter .btn-ghost") : document.querySelectorAll("#libFilter .btn")[sec==="rw"?0:1];
+    if(btn) btn.classList.add("btn-primary");
+    this.renderLibrary();
+  },
+  renderLibrary(){
+    $("libOfficials").innerHTML = `<h3>🏁 Start here (official sources)</h3>${OFFICIALS.map(o=>`<a class="bigin" href="${o.u}" target="_blank" rel="noopener"><div><b>${o.t}</b><span class="dim">${o.why}</span></div><span class="badge">${o.k}</span></a>`).join("")}`;
+    const list = LIBRARY.filter(l=>this._libSec==="all"||l.sec===this._libSec).map(l=>`
+      <details class="libcard"><summary><span><b>${l.topic}</b> <span class="tag">${l.sec.toUpperCase()}</span></span><span class="dim">${(l.playbook||[]).length}+ moves</span></summary>
+        <p class="libwhat">${l.what}</p>
+        <div class="libcols">
+          <div><h4>Do this</h4><ol>${l.playbook.map(p=>`<li>${p}</li>`).join("")}</ol></div>
+          <div><h4>Watch out for</h4><ul>${(l.traps||[]).map(t=>`<li>${t}</li>`).join("")}</ul>
+            <h4 style="margin-top:12px">Practice now</h4>
+            <button class="btn" onclick="APP.practiceSkill('${l.skill}')">▶ Drill ${l.topic} (8 Qs)</button>
+          </div>
+        </div>
+        <div class="libres">${(l.res||[]).map(r=>`<a href="${r.u}" target="_blank" rel="noopener" class="chiplink">${r.why}</a>`).join("")}
+          <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(l.yt)}" target="_blank" rel="noopener" class="chiplink">▶ Find more videos: ${l.yt}</a>
+        </div>
+      </details>`).join("");
+    $("libList").innerHTML = list;
+  },
+  practiceSkill(s){
+    const n=(QUESTION_POOL||[]).filter(q=>q.skill===s).length;
+    const need=Math.min(8,n);
+    if(need<1){ flash("No questions for this skill yet."); return; }
+    this.startSession(this.buildSet([s],need,null,(SKILL_NAMES[s]||s)+" drill"), "skill");
+  },
 
   // ================= DASHBOARD =================
   renderDash(){
